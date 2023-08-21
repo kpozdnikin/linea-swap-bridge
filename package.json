@@ -5,7 +5,7 @@
   "description": "Script to bridge and swap tokens in Linea using SyncSwap",
   "main": "main.ts",
   "scripts": {
-    "start": "ts-node swapAndBridge.ts",
+    "start": "ts-node main.ts",
     "build": "tsc"
   },
   "dependencies": {

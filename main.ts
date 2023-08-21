@@ -1,5 +1,6 @@
 import * as dotenv from "dotenv";
 import BigNumber from "bignumber.js";
+import { ethers } from "ethers";
 import mainConfig from "./mainConfig.json";
 import { bridgeEth } from "./bridge";
 import { swapTokens } from "./swap";
@@ -10,10 +11,12 @@ import { EVMBasedAddress } from "./types";
 dotenv.config();
 
 async function main() {
-  const wallets = readWalletsFromFile("wallet.txt", false); // true for random order
+  if (!ethers.utils.isAddress(mainConfig.tokenInAddress)) {
+    return { success: false, error: "Invalid tokenInAddress address" };
+  }
 
-  if (!Array.isArray(wallets)) {
-    return { success: false, error: "Wallets list is empty" };
+  if (!ethers.utils.isAddress(mainConfig.tokenOutAddress)) {
+    return { success: false, error: "Invalid tokenOutAddress address" };
   }
 
   const amountToTransfer = new BigNumber(mainConfig.amountToTransfer);
@@ -21,7 +24,16 @@ async function main() {
   const tokenToAddress = mainConfig.tokenOutAddress as EVMBasedAddress;
   const amount = mainConfig.amountToTransfer;
 
+  const wallets = readWalletsFromFile("wallet.txt", false); // true for random order
+
+  if (!Array.isArray(wallets)) {
+    return { success: false, error: "Wallets list is empty" };
+  }
+
+  console.log("Wallets were read");
+
   for (const privateKey of wallets) {
+    console.log("try wallet");
     // You can either set the contracts here for each wallet or outside the loop if they're the same for all wallets.
 
     // Шаг 1: Перевод ETH из Arbitrum в Linea
