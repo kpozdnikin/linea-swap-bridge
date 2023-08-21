@@ -1,0 +1,8 @@
+{
+  "amountToTransfer": "0.01",
+  "fromChain": "ARBITRUM",
+  "toChain": "LINEA",
+  "delayBetweenWallets": 5000,
+  "tokenInAddress": "0x0000000000000000000000000000000000000000",
+  "tokenOutAddress": "0x176211869cA2b568f2A7D4EE941E073a821EE1ff"
+}

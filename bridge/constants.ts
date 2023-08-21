@@ -1,11 +1,4 @@
-export type BridgeToken = {
-  address: string;
-  makerAddress: string;
-  precision: number;
-  id: number;
-  name: string;
-  chainId: number;
-}
+import { BridgeToken } from "./types";
 
 export const BRIDGE_TOKENS: BridgeToken[] = [
   {
@@ -15,5 +8,5 @@ export const BRIDGE_TOKENS: BridgeToken[] = [
     id: 0,
     name: "ETH",
     chainId: 2,
-  }
-]
+  },
+];
