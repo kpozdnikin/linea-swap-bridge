@@ -1,4 +1,3 @@
-import * as dotenv from "dotenv";
 import BigNumber from "bignumber.js";
 import { ethers } from "ethers";
 import mainConfig from "./mainConfig.json";
@@ -7,8 +6,6 @@ import { swapTokens } from "./swap";
 import { readWalletsFromFile } from "./wallets";
 import { delay } from "./utils";
 import { EVMBasedAddress } from "./types";
-
-dotenv.config();
 
 // В документации информации о linea нет, но каждая сеть имеет ограничения по сумме трансфера
 // По аналогии с другими трансферами с Arbitrum будем считать, что minValue = 0.005, maxValue = 5
@@ -37,8 +34,13 @@ async function main() {
   const tokenFromAddress = mainConfig.tokenInAddress as EVMBasedAddress;
   const tokenToAddress = mainConfig.tokenOutAddress as EVMBasedAddress;
   const amount = mainConfig.amountToTransfer;
+  let wallets: string[];
 
-  const wallets = readWalletsFromFile("wallet.txt", false); // true for random order
+  try {
+    wallets = readWalletsFromFile("wallet.txt", false); // true for random order
+  } catch (e) {
+    return { success: false, error: "Wallets.txt not exists" };
+  }
 
   if (!Array.isArray(wallets)) {
     return { success: false, error: "Wallets list is empty" };
@@ -62,6 +64,8 @@ async function main() {
     // Задержка перед следующим кошельком
     await delay(mainConfig.delayBetweenWallets);
   }
+
+  return { success: true };
 }
 
 main().catch(console.error);

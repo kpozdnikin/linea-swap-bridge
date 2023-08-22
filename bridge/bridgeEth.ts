@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { Bridge } from "orbiter-sdk";
+import { Bridge } from "./src/bridge";
 import { delay } from "../utils";
 import { CHAIN_CONFIG } from "./config";
 import { BRIDGE_TOKENS } from "./constants";

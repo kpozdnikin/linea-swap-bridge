@@ -22,6 +22,7 @@ module.exports = {
     ecmaVersion: "latest",
   },
   plugins: ["@typescript-eslint", "import", "sort-imports-es6-autofix"],
+  ignorePatterns: ["*/bridge/src/*.ts"],
   rules: {
     "@typescript-eslint/no-var-requires": 0,
     "@typescript-eslint/no-empty-interface": "off",
