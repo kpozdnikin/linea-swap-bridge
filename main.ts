@@ -17,6 +17,7 @@ const MAX_VALUE = 5;
 
 // ETH - ARBITRUM - 0xE4eDb277e41dc89aB076a1F049f4a3EfA700bCE8 0.0062 -> 0.005
 // ETH - ARBITRUM - 0xE4eDb277e41dc89aB076a1F049f4a3EfA700bCE8 0.0062 -> 0.005
+// ARBITRUM - LINEA - 0x80C67432656d59144cEFf962E8fAF8926599bCF8 0.006 -> 0.005 -> 0x39188e2429040570e0f4a7615d390839c03f5ec7
 
 async function main() {
   if (!ethers.utils.isAddress(mainConfig.tokenInAddress)) {
