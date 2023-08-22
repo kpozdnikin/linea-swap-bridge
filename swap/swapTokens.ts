@@ -6,25 +6,26 @@ import { zkSyncEraMainnet } from "./config";
 import classicPoolFactoryAbi from "./syncSwapClassicPoolFactory.json";
 import syncSwapPoolMaster from "./syncSwapPoolMaster.json";
 
-const provider = new providers.JsonRpcProvider(/*... ваш URL RPC ...*/);
-const signer = provider.getSigner();
-
-const swapServiceInstance = new SwapService(
-  provider,
-  signer,
-  zkSyncEraMainnet.syncSwapClassicPoolFactory, // classicPoolFactoryAddress,
-  classicPoolFactoryAbi,
-  syncSwapPoolMaster, // poolAbi,
-  zkSyncEraMainnet.syncSwapRouter, // routerAddress,
-  classicPoolFactoryAbi, // routerAbi,
-);
-
 export const swapTokens = async (
   tokenInAddress: EVMBasedAddress,
   tokenOutAddress: EVMBasedAddress,
   value: BigNumber,
+  privateKey: string,
 ) => {
   try {
+    const provider = new providers.JsonRpcProvider(privateKey);
+    const signer = provider.getSigner();
+
+    const swapServiceInstance = new SwapService(
+      provider,
+      signer,
+      zkSyncEraMainnet.syncSwapClassicPoolFactory, // classicPoolFactoryAddress,
+      classicPoolFactoryAbi,
+      syncSwapPoolMaster, // poolAbi,
+      zkSyncEraMainnet.syncSwapRouter, // routerAddress,
+      classicPoolFactoryAbi, // routerAbi,
+    );
+
     const result = await swapServiceInstance.swapTokens(tokenInAddress, tokenOutAddress, value);
     console.log("swapTokens result", result);
 
