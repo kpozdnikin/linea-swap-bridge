@@ -1,6 +1,6 @@
 import { ethers } from "ethers";
-import { Bridge } from "./src/bridge";
 import { delay } from "../utils";
+import { Bridge } from "./src/bridge";
 import { CHAIN_CONFIG } from "./config";
 import { BRIDGE_TOKENS } from "./constants";
 
@@ -33,7 +33,9 @@ export const bridgeEth = async (fromChainName: string, toChainName: string, amou
     return { success: false, error: "Invalid chain names provided" };
   }
 
-  const token = BRIDGE_TOKENS.find((item) => item.name === "ETH" && item.chainId === fromChain.networkId);
+  console.log("fromChain", fromChain, "toChain", toChain);
+
+  const token = BRIDGE_TOKENS.find((item) => item.name === "ETH");
 
   if (!token) {
     return { success: false, error: "Invalid token provided" };
@@ -41,11 +43,12 @@ export const bridgeEth = async (fromChainName: string, toChainName: string, amou
 
   try {
     const providerFrom = new ethers.providers.JsonRpcProvider(fromChain.mainnet);
-    const signerFrom = new ethers.Wallet(privateKey, providerFrom);
+    const walletFrom = new ethers.Wallet(privateKey, providerFrom);
+    const signerFrom = walletFrom.connect(providerFrom);
     const providerTo = new ethers.providers.JsonRpcProvider(toChain.mainnet);
-    const signerTo = new ethers.Wallet(privateKey, providerTo);
-
-    const bridge = new Bridge("Testnet"); // Mainnet
+    const walletTo = new ethers.Wallet(privateKey, providerFrom);
+    const signerTo = walletTo.connect(providerTo);
+    const bridge = new Bridge("Mainnet"); // Testnet
     const result = await bridge.transfer(signerFrom, token, fromChain, toChain, amount);
 
     // Ожидание завершения перехода по мосту

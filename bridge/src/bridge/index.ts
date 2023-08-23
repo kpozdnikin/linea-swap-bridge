@@ -1,6 +1,6 @@
 import { SigningMethod } from "@dydxprotocol/v3-client";
 import { Web3Provider } from "@ethersproject/providers";
-import { ethers, Signer, utils, Wallet } from "ethers";
+import { ethers, Signer, utils, Wallet, providers } from "ethers";
 import Web3 from "web3";
 import config from "../config";
 import { core, DydxHelper, IMXHelper } from "../orbiter-sdk";
@@ -275,6 +275,8 @@ export class Bridge {
   public async getAmounts(token: BridgeToken, fromChain: BridgeChain, toChain: BridgeChain, amountHm: string | number) {
     const targetMakerInfo = await this.getTargetMakerInfo(token, fromChain, toChain);
 
+    console.log("targetMakerInfo", targetMakerInfo);
+
     if (!targetMakerInfo) {
       throw new Error("Cannot fetch target maker info");
     }
@@ -329,14 +331,10 @@ export class Bridge {
       throw new Error("Orbiter bridge transfer miss params [signer]");
     }
 
-    // Get web3Provider
-    let web3Provider = <Web3Provider>signer.provider;
-    web3Provider.provider;
-    if (!web3Provider || !(web3Provider instanceof Web3Provider)) {
-      throw new Error("Orbiter bridge transfer failed: Invalid signer.provider");
-    }
-
     const amounts = await this.getAmounts(token, fromChain, toChain, amountHm);
+
+    console.log("amounts", amounts);
+
     const transferOptions: TransactionTransferOptions = {
       amount: amounts.payAmount,
       tokenAddress: token.address,
@@ -344,21 +342,13 @@ export class Bridge {
     };
 
     const accountAddress = await signer.getAddress();
+
     if (!accountAddress) {
       throw new Error("Orbiter bridge failed: Empty fromAddress");
     }
 
     // Ensure StarkAccount(imx, dydx...)
     await this.ensureStarkAccount(accountAddress, signer, fromChain, toChain);
-
-    // When provider is metamask, switch network
-    if (web3Provider.provider.isMetaMask === true) {
-      await ensureMetamaskNetwork(fromChain.id, web3Provider.provider);
-
-      // Reset web3Provider, signer
-      web3Provider = new Web3Provider(web3Provider.provider);
-      signer = web3Provider.getSigner();
-    }
 
     // To dydx is cross address transfer
     // It will cache dydxAccount in ensureStarkAccount
@@ -371,20 +361,6 @@ export class Bridge {
       };
     }
 
-    // Web3
-    if (ChainValidator.loopring(fromChain.id)) {
-      const web3 = new Web3(<any>web3Provider.provider);
-      if (signer instanceof Wallet && signer.privateKey) {
-        web3.eth.accounts.wallet.add(signer.privateKey);
-      }
-
-      const tLoopring = new TransactionLoopring(fromChain.id, web3);
-      return await tLoopring.transfer({
-        ...transferOptions,
-        fromAddress: accountAddress,
-        memo: amounts.payText,
-      });
-    }
     if (ChainValidator.dydx(fromChain.id)) {
       // dYdx cannot transfer out now
       return undefined;

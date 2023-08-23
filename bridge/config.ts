@@ -6,8 +6,15 @@ export const CHAIN_CONFIG: Record<string, ChainConfig> = {
     id: 2,
     name: "arbitrum",
     networkId: 42161,
-    mainnet: "https://api.arbiscan.io/api",
+    mainnet: "https://arb1.arbitrum.io/rpc",
     testnet: "https://api-testnet.arbiscan.io/api",
+  },
+  OPTIMISM: {
+    id: 7,
+    name: "optimism",
+    networkId: 10,
+    mainnet: "https://opt-mainnet.g.alchemy.com/v2/GDHuWPfKx_4cPuycQNl3-9gjQGCfsi24",
+    testnet: "https://goerli.optimism.io",
   },
   // https://rpc.linea.build/
   LINEA: {
