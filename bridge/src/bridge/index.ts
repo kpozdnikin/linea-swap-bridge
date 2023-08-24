@@ -275,8 +275,6 @@ export class Bridge {
   public async getAmounts(token: BridgeToken, fromChain: BridgeChain, toChain: BridgeChain, amountHm: string | number) {
     const targetMakerInfo = await this.getTargetMakerInfo(token, fromChain, toChain);
 
-    console.log("targetMakerInfo", targetMakerInfo);
-
     if (!targetMakerInfo) {
       throw new Error("Cannot fetch target maker info");
     }
@@ -304,8 +302,6 @@ export class Bridge {
 
     const payText = 9000 + Number(toChain.id) + "";
     const result = core.getTAmountFromRAmount(fromChain.id, userAmount, payText);
-
-    console.log("payText", payText);
 
     if (!result.state) {
       throw new Error(
@@ -337,8 +333,6 @@ export class Bridge {
     }
 
     const amounts = await this.getAmounts(token, fromChain, toChain, amountHm);
-
-    console.log("amounts", amounts);
 
     const transferOptions: TransactionTransferOptions = {
       amount: amounts.payAmount,

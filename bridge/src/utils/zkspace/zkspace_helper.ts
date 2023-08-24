@@ -204,7 +204,6 @@ async function getZKSTokenList(req) {
       throw new Error(`getZKSTokenList NetWorkError`)
     }
   } catch (error) {
-    console.error('getZKSTokenList error =', error)
     throw new Error(`getZKSTokenList error = ${error.message}`)
   }
 }

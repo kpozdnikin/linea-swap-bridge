@@ -135,7 +135,6 @@ class IMXListen {
       }
 
       if (this.transferConfirmationedHashs[transaction.hash] === undefined && isConfirmed) {
-        console.log(`Transaction [${transaction.hash}] was confirmed.`);
         callbacks && callbacks.onConfirmation && callbacks.onConfirmation(transaction);
       }
     }

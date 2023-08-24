@@ -34,8 +34,6 @@ export const bridgeEth = async (fromChainName: string, toChainName: string, amou
     return { success: false, error: "Invalid chain names provided" };
   }
 
-  console.log("fromChain", fromChain, "toChain", toChain);
-
   const token = BRIDGE_TOKENS.find((item) => item.name === "ETH");
 
   if (!token) {
@@ -52,12 +50,11 @@ export const bridgeEth = async (fromChainName: string, toChainName: string, amou
     const bridge = new Bridge("Mainnet"); // Testnet
     const result = await bridge.transfer(signerFrom, token, fromChain, toChain, amount);
     const amounts = await bridge.getAmounts(token, fromChain, toChain, amount);
-
-    console.log("amounts to transfer", amounts);
+    const { receiveAmountHm } = amounts;
 
     // Ожидание завершения перехода по мосту
     // передаем signer сети назначения
-    await waitForBridgeCompletion(signerTo, ethers.utils.parseEther(amount));
+    await waitForBridgeCompletion(signerTo, ethers.utils.parseEther(receiveAmountHm));
 
     console.log("Transfer successful:", result);
 
