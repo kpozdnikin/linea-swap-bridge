@@ -4068,4 +4068,37 @@ export const makerList = [
       },
     ],
   },
+  {
+    makerAddress: "0x80C67432656d59144cEFf962E8fAF8926599bCF8",
+    c1ID: 2,
+    c2ID: 23,
+    c1Name: "arbitrum",
+    c2Name: "linea",
+    t1Address: "0x0000000000000000000000000000000000000000",
+    t2Address: "0x0000000000000000000000000000000000000000",
+    tName: "ETH",
+    c1MinPrice: 0.005,
+    c1MaxPrice: 10,
+    c2MinPrice: 0.005,
+    c2MaxPrice: 10,
+    precision: 18,
+    c1AvalibleDeposit: 1000,
+    c2AvalibleDeposit: 1000,
+    c1TradingFee: 0.0013,
+    c2TradingFee: 0.005,
+    c1GasFee: 0.15,
+    c2GasFee: 0.3,
+    c1AvalibleTimes: [
+      {
+        startTime: 1655967601,
+        endTime: 99999999999999,
+      },
+    ],
+    c2AvalibleTimes: [
+      {
+        startTime: 1655967601,
+        endTime: 99999999999999,
+      },
+    ],
+  },
 ];

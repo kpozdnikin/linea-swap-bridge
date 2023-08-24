@@ -18,7 +18,7 @@ export const CHAIN_CONFIG: Record<string, ChainConfig> = {
   },
   // https://rpc.linea.build/
   LINEA: {
-    id: 34,
+    id: 23,
     name: "linea",
     networkId: 59140,
     mainnet: "https://linea-mainnet.infura.io/v3",

@@ -15,6 +15,7 @@ const MAX_BITS = {
   nova: 256,
   arbitrum_nova: 256,
   polygon_zkevm: 256,
+  linea: 256,
 };
 
 export const CHAIN_INDEX: Record<number, string> = {

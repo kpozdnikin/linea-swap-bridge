@@ -8,6 +8,5 @@ export const BRIDGE_TOKENS: BridgeToken[] = [
     id: 0,
     name: "ETH",
     chainId: 2,
-    identificationCode: 9023,
   },
 ];

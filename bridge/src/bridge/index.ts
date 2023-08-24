@@ -6,7 +6,7 @@ import config from "../config";
 import { core, DydxHelper, IMXHelper } from "../orbiter-sdk";
 import { TransactionEvm, TransactionImmutablex, TransactionLoopring, TransactionZksync } from "../transaction";
 import { TransactionTransferOptions } from "../transaction/transaction";
-import { ensureMetamaskNetwork, equalsIgnoreCase } from "../utils";
+import { equalsIgnoreCase } from "../utils";
 import { ChainValidator } from "../utils/validator";
 import { makerList as makerList_mainnet } from "./maker_list.mainnet";
 import { makerList as makerList_testnet } from "./maker_list.testnet";
@@ -304,8 +304,13 @@ export class Bridge {
 
     const payText = 9000 + Number(toChain.id) + "";
     const result = core.getTAmountFromRAmount(fromChain.id, userAmount, payText);
+
+    console.log("payText", payText);
+
     if (!result.state) {
-      throw new Error("Obirter get total amount failed! Please check if the amount matches the rules!");
+      throw new Error(
+        `Obirter get total amount failed! Please check if the amount matches the rules! ${result.error || ""}`,
+      );
     }
     const payAmount = ethers.BigNumber.from(result.tAmount + "");
     const payAmountHm = utils.formatUnits(payAmount, precision);
@@ -371,6 +376,7 @@ export class Bridge {
       const tZksync = new TransactionZksync(fromChain.id, signer);
       return await tZksync.transfer(transferOptions);
     }
+
     if (ChainValidator.immutablex(fromChain.id)) {
       const tImx = new TransactionImmutablex(fromChain.id, signer);
       return await tImx.transfer({

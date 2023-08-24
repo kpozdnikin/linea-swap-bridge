@@ -5,7 +5,6 @@ export type BridgeToken = {
   id: number;
   name: string;
   chainId: number;
-  identificationCode: number;
 };
 
 export type ChainConfig = {
