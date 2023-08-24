@@ -15,6 +15,6 @@ export type ChainSwapConfig = {
 // TODO - replace ANY
 export type OperationResult = {
   success: boolean;
-  error: any;
-  result: any;
+  error?: string;
+  result?: any;
 };

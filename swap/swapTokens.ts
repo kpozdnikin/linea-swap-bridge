@@ -27,8 +27,6 @@ export const swapTokens = async (
   const signer = wallet.connect(provider);
   const address = wallet.address as EVMBasedAddress;
 
-  console.log("signer", signer, "provider", provider, "address", address);
-
   try {
     const swapServiceInstance = new SwapService(
       provider,

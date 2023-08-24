@@ -25,6 +25,7 @@ async function waitForBridgeCompletion(destinationWallet: ethers.Wallet, expecte
   throw new Error("Timed out waiting for tokens to bridge");
 }
 
+// TODO - show amounts and fee
 export const bridgeEth = async (fromChainName: string, toChainName: string, amount: string, privateKey: string) => {
   const fromChain = CHAIN_CONFIG[fromChainName];
   const toChain = CHAIN_CONFIG[toChainName];
@@ -50,6 +51,9 @@ export const bridgeEth = async (fromChainName: string, toChainName: string, amou
     const signerTo = walletTo.connect(providerTo);
     const bridge = new Bridge("Mainnet"); // Testnet
     const result = await bridge.transfer(signerFrom, token, fromChain, toChain, amount);
+    const amounts = await bridge.getAmounts(token, fromChain, toChain, amount);
+
+    console.log("amounts to transfer", amounts);
 
     // Ожидание завершения перехода по мосту
     // передаем signer сети назначения

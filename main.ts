@@ -12,10 +12,6 @@ import { EVMBasedAddress } from "./types";
 const MIN_VALUE = 0.005;
 const MAX_VALUE = 5;
 
-// ETH - ARBITRUM - 0xE4eDb277e41dc89aB076a1F049f4a3EfA700bCE8 0.0062 -> 0.005
-// ETH - ARBITRUM - 0xE4eDb277e41dc89aB076a1F049f4a3EfA700bCE8 0.0062 -> 0.005
-// ARBITRUM - LINEA - 0x80C67432656d59144cEFf962E8fAF8926599bCF8 0.006 -> 0.005 -> 0x39188e2429040570e0f4a7615d390839c03f5ec7
-
 async function main() {
   if (!ethers.utils.isAddress(mainConfig.tokenInAddress)) {
     return { success: false, error: "Invalid tokenInAddress address" };
@@ -33,7 +29,7 @@ async function main() {
 
   const tokenFromAddress = mainConfig.tokenInAddress as EVMBasedAddress;
   const tokenToAddress = mainConfig.tokenOutAddress as EVMBasedAddress;
-  const amount = mainConfig.amountToTransfer;
+
   let wallets: string[];
 
   try {
@@ -62,10 +58,10 @@ async function main() {
     } */
 
     // Шаг 2: Своп ETH на USDC
-    await swapTokens("LINEA", tokenFromAddress, tokenToAddress, amountToTransfer, privateKey);
+    await swapTokens(mainConfig.toChain, tokenFromAddress, tokenToAddress, amountToTransfer, privateKey);
 
     // Шаг 3: Обратный своп USDC на ETH
-    await swapTokens("LINEA", tokenToAddress, tokenFromAddress, new BigNumber(mainConfig.amountToTransfer), privateKey);
+    await swapTokens(mainConfig.toChain, tokenToAddress, tokenFromAddress, amountToTransfer, privateKey);
 
     // Задержка перед следующим кошельком
     await delay(mainConfig.delayBetweenWallets);

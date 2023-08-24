@@ -1,10 +1,10 @@
 import { Contract, ethers, providers, utils, Wallet } from "ethers";
 import BigNumber from "bignumber.js";
 import { MIN_GAS_UNITS, WETH_DECIMALS, ZERO_ADDRESS } from "../constants";
-import { EVMBasedAddress } from "../types";
+import { EVMBasedAddress, OperationResult } from "../types";
 import ERC20ABI from "./erc20Abi.json";
 
-// TODO - replace ANY
+// TODO - replace ANY, add error codes
 export class SwapService {
   private account: EVMBasedAddress;
   private provider: providers.JsonRpcProvider;
@@ -38,12 +38,18 @@ export class SwapService {
     this.wethAddress = wethAddress;
   }
 
-  private async wrapEth(tokenAmount: BigNumber): Promise<void> {
+  private async getTokenDecimals(tokenAddress): Promise<number> {
+    const contract = new ethers.Contract(tokenAddress, ERC20ABI, this.signer);
+
+    return contract.decimals();
+  }
+
+  private async wrapEth(tokenAmount: BigNumber): Promise<OperationResult> {
     const tokenAmountUint = ethers.utils.parseUnits(tokenAmount.toFixed(), WETH_DECIMALS);
     const contract = new ethers.Contract(this.wethAddress, ERC20ABI, this.signer);
 
     try {
-      await this.signer.sendTransaction({
+      const result = await this.signer.sendTransaction({
         to: this.wethAddress,
         value: tokenAmountUint,
         gasLimit: MIN_GAS_UNITS,
@@ -53,31 +59,32 @@ export class SwapService {
       const amountBn = new BigNumber(tokenAmount);
       const wethBalaceBN = new BigNumber(wethBalance);
 
-      console.log("amount", tokenAmount, "wethBalance", wethBalance);
-
       if (!amountBn.eq(wethBalaceBN)) {
-        throw Error("wrap eth error - balance not equal");
+        return { success: false, error: "Not enough balance wrapped" };
       }
+
+      return { success: true, result };
     } catch (e) {
-      throw Error(`wrap eth error ${e.toString()}`);
+      return { success: false, error: `wrap eth error ${e.toString()}` };
     }
   }
 
-  private async swap(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<void> {
-    const classicPoolFactory = new Contract(this.classicPoolFactoryAddress, this.classicPoolFactoryAbi, this.provider);
+  private async swap(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<OperationResult> {
+    const classicPoolFactory = new Contract(this.classicPoolFactoryAddress, this.classicPoolFactoryAbi, this.signer);
     const poolAddress = await classicPoolFactory.getPool(tokenInAddress, tokenOutAddress);
 
-    console.log("classicPoolFactory", classicPoolFactory, "poolAddress", poolAddress);
+    const decimals = tokenInAddress === ZERO_ADDRESS ? 18 : await this.getTokenDecimals(tokenInAddress);
+    const valueUint = ethers.utils.parseUnits(value.toString(), decimals);
 
     if (poolAddress === ZERO_ADDRESS) {
-      throw Error("Pool does not exist");
+      return { success: false, error: "Pool does not exist" };
     }
 
-    const pool = new Contract(poolAddress, this.poolAbi, this.provider);
+    const pool = new Contract(poolAddress, this.poolAbi, this.signer);
     const reserves: [BigNumber, BigNumber] = await pool.getReserves();
     const [reserveIn, reserveOut] = tokenInAddress < tokenOutAddress ? reserves : [reserves[1], reserves[0]];
 
-    console.log("reserveIn", reserveIn, "reserveOut", reserveOut);
+    console.log("reserveIn", reserveIn.toString(), "reserveOut", reserveOut.toString());
 
     const withdrawMode = 1; // 1 or 2 to withdraw to user's wallet
     const signerAddress = await this.signer.getAddress();
@@ -90,7 +97,7 @@ export class SwapService {
       {
         pool: poolAddress,
         data: swapData,
-        callback: ZERO_ADDRESS,
+        callback: ZERO_ADDRESS, // we don't have a callback
         callbackData: "0x",
       },
     ];
@@ -99,28 +106,50 @@ export class SwapService {
       {
         steps: steps,
         tokenIn: tokenInAddress,
-        amountIn: value,
+        amountIn: valueUint,
       },
     ];
 
-    const router = new Contract(this.routerAddress, this.routerAbi, this.provider);
-    const response = await router.swap(paths, 0, new BigNumber(Math.floor(Date.now() / 1000)).plus(1800), {
-      value: value,
-    });
+    const timestamp = ethers.BigNumber.from(Math.floor(Date.now() / 1000)).add(1800);
 
-    await response.wait();
+    try {
+      const router: Contract = new Contract(this.routerAddress, this.routerAbi, this.signer);
+
+      // TODO - correct amount with slippage
+      const response = await router.swap(paths, 0, timestamp, {
+        value: valueUint,
+      });
+
+      const result = await response.wait();
+
+      return { success: true, result };
+    } catch (e) {
+      return { success: false, error: `Swap error ${e.toString()}` };
+    }
   }
 
-  public async swapTokens(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<void> {
+  public async swapTokens(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<OperationResult> {
     // Ensure that not both addresses are ZERO_ADDRESS
     if (tokenInAddress === ZERO_ADDRESS && tokenOutAddress === ZERO_ADDRESS) {
-      throw Error("Both token addresses cannot be ZERO_ADDRESS");
+      return { success: false, error: "Both token addresses cannot be ZERO_ADDRESS" };
     }
 
     if (tokenInAddress === ZERO_ADDRESS) {
-      await this.wrapEth(value);
+      const result = await this.wrapEth(value);
+
+      if (!result.success) {
+        return result;
+      }
+
+      return this.swap(this.wethAddress, tokenOutAddress, value);
     }
 
-    await this.swap(tokenInAddress, tokenOutAddress, value);
+    // The vault integrates wETH by nature. All wETH deposits will be immediately unwrapped to native ETH and will wrap ETH on withdrawing wETH.
+    // The reserve and balance of wETH and ETH are the same value.
+    if (tokenOutAddress === ZERO_ADDRESS) {
+      return this.swap(tokenInAddress, this.wethAddress, value);
+    }
+
+    return this.swap(tokenInAddress, tokenOutAddress, value);
   }
 }
