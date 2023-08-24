@@ -53,13 +53,13 @@ async function main() {
     // You can either set the contracts here for each wallet or outside the loop if they're the same for all wallets.
 
     // Шаг 1: Перевод ETH из Arbitrum в Linea
-    const bridgeResult = await bridgeEth(mainConfig.fromChain, mainConfig.toChain, amount, privateKey);
+    /* const bridgeResult = await bridgeEth(mainConfig.fromChain, mainConfig.toChain, amount, privateKey);
 
     console.log("bridge result", bridgeResult);
 
     if (!bridgeResult.success) {
       return { success: false, error: "Cannot bridge token" };
-    }
+    } */
 
     // Шаг 2: Своп ETH на USDC
     await swapTokens(tokenFromAddress, tokenToAddress, amountToTransfer, privateKey);

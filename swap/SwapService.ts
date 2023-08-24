@@ -1,10 +1,10 @@
-import { Contract, providers, utils } from "ethers";
+import { Contract, providers, utils, Wallet } from "ethers";
 import BigNumber from "bignumber.js";
 import { ZERO_ADDRESS } from "../constants";
 
 export class SwapService {
   private provider: providers.JsonRpcProvider;
-  private signer: providers.JsonRpcSigner;
+  private signer: Wallet;
   private classicPoolFactoryAddress: string;
   private classicPoolFactoryAbi: any[];
   private poolAbi: any[];
@@ -13,7 +13,7 @@ export class SwapService {
 
   constructor(
     provider: providers.JsonRpcProvider,
-    signer: providers.JsonRpcSigner,
+    signer: Wallet,
     classicPoolFactoryAddress: string,
     classicPoolFactoryAbi: any[],
     poolAbi: any[],
@@ -29,17 +29,11 @@ export class SwapService {
     this.routerAbi = routerAbi;
   }
 
-  public async swapETHForToken(tokenAddress: string, value: BigNumber): Promise<void> {
-    await this.swap(ZERO_ADDRESS, tokenAddress, value);
-  }
-
-  public async swapTokenForETH(tokenAddress: string, value: BigNumber): Promise<void> {
-    await this.swap(tokenAddress, ZERO_ADDRESS, value);
-  }
-
   private async swap(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<void> {
     const classicPoolFactory = new Contract(this.classicPoolFactoryAddress, this.classicPoolFactoryAbi, this.provider);
     const poolAddress = await classicPoolFactory.getPool(tokenInAddress, tokenOutAddress);
+
+    console.log("classicPoolFactory", classicPoolFactory, "poolAddress", poolAddress);
 
     if (poolAddress === ZERO_ADDRESS) {
       throw Error("Pool does not exist");
