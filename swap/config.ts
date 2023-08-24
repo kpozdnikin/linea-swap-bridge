@@ -1,7 +1,15 @@
-export const LINEA_MAINNET_RPC = "https://rpc.linea.build";
-export const LINEA_CHAIN_ID = 59140;
+import { ChainSwapConfig } from "../types";
 
-export const LINEA_MAINNET_CONTRACTS = {
-  syncSwapClassicPoolFactory: "0x37BAc764494c8db4e54BDE72f6965beA9fa0AC2d",
-  syncSwapRouter: "0x80e38291e06339d10AAB483C65695D004dBD5C69",
+export const CHAINS_TOKENS_CONFIG: Record<string, ChainSwapConfig> = {
+  LINEA: {
+    chainId: 59140,
+    mainnetRpc: "https://rpc.linea.build",
+    mainnetContracts: {
+      syncSwapClassicPoolFactory: "0x37BAc764494c8db4e54BDE72f6965beA9fa0AC2d",
+      syncSwapRouter: "0x80e38291e06339d10AAB483C65695D004dBD5C69",
+    },
+    tokenAddresses: {
+      WETH: "0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
+    },
+  },
 };

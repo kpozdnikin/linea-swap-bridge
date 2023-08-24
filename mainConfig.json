@@ -3,6 +3,6 @@
   "fromChain": "ARBITRUM",
   "toChain": "OPTIMISM",
   "delayBetweenWallets": 5000,
-  "tokenInAddress": "0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
+  "tokenInAddress": "0x0000000000000000000000000000000000000000",
   "tokenOutAddress": "0x176211869cA2b568f2A7D4EE941E073a821EE1ff"
 }

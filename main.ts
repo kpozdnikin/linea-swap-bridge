@@ -62,10 +62,10 @@ async function main() {
     } */
 
     // Шаг 2: Своп ETH на USDC
-    await swapTokens(tokenFromAddress, tokenToAddress, amountToTransfer, privateKey);
+    await swapTokens("LINEA", tokenFromAddress, tokenToAddress, amountToTransfer, privateKey);
 
     // Шаг 3: Обратный своп USDC на ETH
-    await swapTokens(tokenToAddress, tokenFromAddress, new BigNumber(mainConfig.amountToTransfer), privateKey);
+    await swapTokens("LINEA", tokenToAddress, tokenFromAddress, new BigNumber(mainConfig.amountToTransfer), privateKey);
 
     // Задержка перед следующим кошельком
     await delay(mainConfig.delayBetweenWallets);
