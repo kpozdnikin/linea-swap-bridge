@@ -46,6 +46,7 @@ async function main() {
 
   for (const privateKey of wallets) {
     console.log("try wallet");
+    // TODO - return the amount we actually received from the bridge
     // Шаг 1: Перевод ETH из Arbitrum в Linea
     const bridgeResult = await bridgeEth(
       mainConfig.fromChain,
@@ -60,9 +61,11 @@ async function main() {
       return { success: false, error: "Cannot bridge token" };
     }
 
+    // TODO - return the amount in USDC we actually received from the swap
     // Шаг 2: Своп ETH на USDC
     await swapTokens(mainConfig.toChain, tokenFromAddress, tokenToAddress, amountToTransfer, privateKey);
 
+    // TODO - use the amount we received from the prev swap
     // Шаг 3: Обратный своп USDC на ETH
     await swapTokens(mainConfig.toChain, tokenToAddress, tokenFromAddress, amountToTransfer, privateKey);
 
