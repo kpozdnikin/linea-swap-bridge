@@ -1,6 +1,6 @@
 import { Contract, ethers, providers, utils, Wallet } from "ethers";
 import BigNumber from "bignumber.js";
-import { MIN_GAS_UNITS, WETH_DECIMALS, ZERO_ADDRESS } from "../constants";
+import { ZERO_ADDRESS } from "../constants";
 import { EVMBasedAddress, OperationResult } from "../types";
 import ERC20ABI from "./erc20Abi.json";
 
@@ -44,31 +44,6 @@ export class SwapService {
     const contract = new ethers.Contract(tokenAddress, ERC20ABI, this.signer);
 
     return contract.decimals();
-  }
-
-  private async wrapEth(tokenAmount: BigNumber): Promise<OperationResult> {
-    const tokenAmountUint = ethers.utils.parseUnits(tokenAmount.toFixed(), WETH_DECIMALS);
-    const contract = new ethers.Contract(this.wethAddress, ERC20ABI, this.signer);
-
-    try {
-      const result = await this.signer.sendTransaction({
-        to: this.wethAddress,
-        value: tokenAmountUint,
-        gasLimit: MIN_GAS_UNITS,
-      });
-
-      const wethBalance = contract.balanceOf(this.account).then((x) => JSON.parse(JSON.stringify(x)));
-      const amountBn = new BigNumber(tokenAmount);
-      const wethBalaceBN = new BigNumber(wethBalance);
-
-      if (!amountBn.eq(wethBalaceBN)) {
-        return { success: false, error: "Not enough balance wrapped" };
-      }
-
-      return { success: true, result };
-    } catch (e) {
-      return { success: false, error: `wrap eth error ${e.toString()}` };
-    }
   }
 
   private async swap(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<OperationResult> {
