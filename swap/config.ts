@@ -10,6 +10,7 @@ export const CHAINS_TOKENS_CONFIG: Record<string, ChainSwapConfig> = {
     },
     tokenAddresses: {
       WETH: "0xe5d7c2a44ffddf6b295a15c148167daaaf5cf34f",
+      USDC: "0x176211869cA2b568f2A7D4EE941E073a821EE1ff",
     },
   },
 };

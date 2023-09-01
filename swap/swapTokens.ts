@@ -20,6 +20,17 @@ export const swapTokens = async (
     return { success: false, error: "Chain not exists" };
   }
 
+  console.log(
+    "swapTokens",
+    chainName,
+    "tokenInAddress",
+    tokenInAddress,
+    "tokenOutAddress",
+    tokenOutAddress,
+    "value",
+    value,
+  );
+
   const provider = new ethers.providers.JsonRpcProvider({
     url: targetChain.mainnetRpc,
   });
@@ -39,6 +50,8 @@ export const swapTokens = async (
       syncSwapRouterAbi, // routerAbi,
       targetChain.tokenAddresses.WETH,
     );
+
+    console.log("targetChain.tokenAddresses.WETH", targetChain.tokenAddresses.WETH);
 
     const result = await swapServiceInstance.swapTokens(tokenInAddress, tokenOutAddress, value);
 

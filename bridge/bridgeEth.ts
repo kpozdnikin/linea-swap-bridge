@@ -190,6 +190,7 @@ export const getTransferGasLimit = async (
 };
 
 // TODO - show amounts and fee
+// payAmount for 0.01 will be 0.011300000000009023
 export const bridgeEth = async (fromChainName: string, toChainName: string, amount: string, privateKey: string) => {
   const fromChain = CHAIN_CONFIG[fromChainName];
   const toChain = CHAIN_CONFIG[toChainName];
@@ -213,6 +214,9 @@ export const bridgeEth = async (fromChainName: string, toChainName: string, amou
     const signerTo = walletTo.connect(providerTo);
 
     const amounts = await getAmounts(token, fromChain, toChain, amount);
+
+    console.log("amounts", amounts);
+
     const transferOptions: TransactionTransferOptions = {
       amount: amounts.payAmount,
       tokenAddress: token.address,

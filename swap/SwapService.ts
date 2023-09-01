@@ -4,6 +4,8 @@ import { MIN_GAS_UNITS, WETH_DECIMALS, ZERO_ADDRESS } from "../constants";
 import { EVMBasedAddress, OperationResult } from "../types";
 import ERC20ABI from "./erc20Abi.json";
 
+const POOL_NOT_EXISTS = "Pool does not exist";
+
 // TODO - replace ANY, add error codes
 export class SwapService {
   private account: EVMBasedAddress;
@@ -71,13 +73,19 @@ export class SwapService {
 
   private async swap(tokenInAddress: string, tokenOutAddress: string, value: BigNumber): Promise<OperationResult> {
     const classicPoolFactory = new Contract(this.classicPoolFactoryAddress, this.classicPoolFactoryAbi, this.signer);
-    const poolAddress = await classicPoolFactory.getPool(tokenInAddress, tokenOutAddress);
+
+    const poolAddress = await classicPoolFactory.getPool(
+      tokenInAddress === ZERO_ADDRESS ? this.wethAddress : tokenInAddress,
+      tokenOutAddress === ZERO_ADDRESS ? this.wethAddress : tokenOutAddress,
+    );
+
+    console.log("poolAddress", poolAddress);
 
     const decimals = tokenInAddress === ZERO_ADDRESS ? 18 : await this.getTokenDecimals(tokenInAddress);
     const valueUint = ethers.utils.parseUnits(value.toString(), decimals);
 
     if (poolAddress === ZERO_ADDRESS) {
-      return { success: false, error: "Pool does not exist" };
+      return { success: false, error: POOL_NOT_EXISTS };
     }
 
     const pool = new Contract(poolAddress, this.poolAbi, this.signer);
@@ -102,6 +110,9 @@ export class SwapService {
       },
     ];
 
+    // If we want to use the native ETH as the input token,
+    // the `tokenInAddress` on path should be zero address.
+    // Note: however we still have to encode the wETH address to pool's swap data.
     const paths = [
       {
         steps: steps,
@@ -132,22 +143,6 @@ export class SwapService {
     // Ensure that not both addresses are ZERO_ADDRESS
     if (tokenInAddress === ZERO_ADDRESS && tokenOutAddress === ZERO_ADDRESS) {
       return { success: false, error: "Both token addresses cannot be ZERO_ADDRESS" };
-    }
-
-    if (tokenInAddress === ZERO_ADDRESS) {
-      const result = await this.wrapEth(value);
-
-      if (!result.success) {
-        return result;
-      }
-
-      return this.swap(this.wethAddress, tokenOutAddress, value);
-    }
-
-    // The vault integrates wETH by nature. All wETH deposits will be immediately unwrapped to native ETH and will wrap ETH on withdrawing wETH.
-    // The reserve and balance of wETH and ETH are the same value.
-    if (tokenOutAddress === ZERO_ADDRESS) {
-      return this.swap(tokenInAddress, this.wethAddress, value);
     }
 
     return this.swap(tokenInAddress, tokenOutAddress, value);

@@ -9,6 +9,7 @@ export type ChainSwapConfig = {
   };
   tokenAddresses: {
     WETH: EVMBasedAddress;
+    USDC: EVMBasedAddress;
   };
 };
 
